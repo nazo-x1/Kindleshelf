@@ -6,13 +6,13 @@ buildscript {
     repositories {
         google()
         jcenter()
-        mavenCentral()
+        // mavenCentral()
         maven { url 'https://maven.fabric.io/public' }
         maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.5.3'
-        classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2'
+        classpath 'org.greenrobot:greendao-gradle-plugin:3.3.0'
         classpath 'com.google.gms:google-services:4.3.3'
         classpath 'io.fabric.tools:gradle:1.31.0'
         classpath 'net.ricecode:string-similarity:1.0.0'
@@ -25,9 +25,9 @@ allprojects {
     repositories {
         google()
         jcenter()
-        mavenCentral()
-        maven { url "https://jitpack.io" }
-        maven { url 'https://maven.google.com/' }
+        // mavenCentral()
+        maven { url "https://www.jitpack.io" }
+        maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://github.com/psiegman/mvn-repo/raw/master/releases' }
     }
 }
