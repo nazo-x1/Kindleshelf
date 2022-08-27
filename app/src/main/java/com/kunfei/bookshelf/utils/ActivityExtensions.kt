@@ -67,6 +67,7 @@ fun Activity.setStatusBarColorAuto(
     isTransparent: Boolean,
     fullScreen: Boolean
 ) {
+    return
     val isLightBar = ColorUtils.isColorLight(color)
     if (fullScreen) {
         if (isTransparent) {
@@ -114,6 +115,7 @@ fun Activity.setLightStatusBar(isLightBar: Boolean) {
  * 设置导航栏颜色
  */
 fun Activity.setNavigationBarColorAuto(@ColorInt color: Int) {
+    return
     val isLightBor = ColorUtils.isColorLight(color)
     window.navigationBarColor = color
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

@@ -222,10 +222,10 @@ public class ReadBookActivity extends MBaseActivity<ReadBookContract.Presenter> 
             changeNavigationBarColor();
         } else {
             if (isImmersionBarEnabled()) {
-                getWindow().setStatusBarColor(Color.TRANSPARENT);
+                // getWindow().setStatusBarColor(Color.TRANSPARENT);
                 ActivityExtensionsKt.setLightStatusBar(this, readBookControl.getDarkStatusIcon());
             } else {
-                getWindow().setStatusBarColor(getResources().getColor(R.color.ate_switch_track_normal_light));
+                // getWindow().setStatusBarColor(getResources().getColor(R.color.ate_switch_track_normal_light));
                 ActivityExtensionsKt.setLightStatusBar(this, false);
             }
         }
