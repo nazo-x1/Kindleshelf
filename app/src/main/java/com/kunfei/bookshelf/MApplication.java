@@ -61,6 +61,7 @@ public class MApplication extends Application {
 
     @Override
     public void onCreate() {
+        okhttphack.hack();
         super.onCreate();
         instance = this;
         CrashHandler.getInstance().init(this);
