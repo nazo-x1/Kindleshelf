@@ -17,15 +17,16 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-sdk tools:overrideLibrary="com.google.android.exoplayer2.ext.okhttp"/>
 
     <application
         android:name=".MApplication"
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/book_launcher"
         android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
         android:persistent="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/book_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/CAppTheme"
         android:requestLegacyExternalStorage="true"
@@ -48,8 +49,8 @@
         <activity
             android:name=".view.activity.WelcomeBookActivity"
             android:enabled="false"
-            android:icon="@mipmap/book_launcher"
-            android:roundIcon="@mipmap/book_launcher_round"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:theme="@style/CAppWelcomeTheme"
             android:exported="true">
             <intent-filter>
