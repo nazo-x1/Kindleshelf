@@ -1,11 +1,12 @@
-package com.kunfei.bookshelf
+package com.kunfei.bookshelf.hack
 
 import android.os.Build
 import com.kunfei.bookshelf.help.AndroidPlatform9
 import okhttp3.internal.platform.Platform;
 
-object okhttphack {
-
+object hack {
+    
+    @JvmStatic
     fun hack() {
         if (Build.VERSION.SDK_INT < 21) {
             initLowVersionPlatform()
