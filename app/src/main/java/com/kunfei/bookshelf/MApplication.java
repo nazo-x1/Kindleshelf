@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.internal.functions.Functions;
 import io.reactivex.plugins.RxJavaPlugins;
 import timber.log.Timber;
+import com.kunfei.bookshelf.hack.hack;
 
 public class MApplication extends Application {
     public final static String channelIdDownload = "channel_download";
@@ -62,6 +63,7 @@ public class MApplication extends Application {
 
     @Override
     public void onCreate() {
+        hack.hack();
         super.onCreate();
         instance = this;
         CrashHandler.getInstance().init(this);
