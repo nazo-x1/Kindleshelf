@@ -37,7 +37,7 @@ public class MApplication extends Application {
     public final static String channelIdReadAloud = "channel_read_aloud";
     public final static String channelIdWeb = "channel_web";
     public static String downloadPath;
-    public static boolean isEInkMode;
+    public static boolean isEInkMode = true;
     public static String SEARCH_GROUP = null;
     private static MApplication instance;
     private static String versionName;
@@ -170,7 +170,7 @@ public class MApplication extends Application {
     }
 
     public void upEInkMode() {
-        MApplication.isEInkMode = configPreferences.getBoolean("E-InkMode", false);
+        MApplication.isEInkMode = configPreferences.getBoolean("E-InkMode", true);
     }
 
     /**
