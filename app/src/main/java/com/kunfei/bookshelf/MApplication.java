@@ -67,7 +67,6 @@ public class MApplication extends Application {
         super.onCreate();
         instance = this;
         CrashHandler.getInstance().init(this);
-        Timber.plant(new Timber.DebugTree());
         RxJavaPlugins.setErrorHandler(Functions.emptyConsumer());
         try {
             versionCode = getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;

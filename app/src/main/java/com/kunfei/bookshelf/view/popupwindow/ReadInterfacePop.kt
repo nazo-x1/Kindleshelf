@@ -25,7 +25,6 @@ import com.kunfei.bookshelf.view.activity.ReadStyleActivity
 import com.kunfei.bookshelf.widget.font.FontSelector
 import com.kunfei.bookshelf.widget.font.FontSelector.OnThisListener
 import com.kunfei.bookshelf.widget.page.animation.PageAnimation
-import timber.log.Timber
 
 class ReadInterfacePop : FrameLayout {
     private val binding = PopReadInterfaceBinding.inflate(
@@ -247,9 +246,6 @@ class ReadInterfacePop : FrameLayout {
             }.let {
                 selectFont(it)
             }
-        }.onFailure {
-            context.toastOnUi("获取文件列表出错\n${it.localizedMessage}")
-            Timber.e(it)
         }
     }
 

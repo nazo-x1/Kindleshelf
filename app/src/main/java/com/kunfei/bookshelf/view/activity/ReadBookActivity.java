@@ -32,7 +32,6 @@ import android.view.animation.AnimationUtils;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
-import androidx.documentfile.provider.DocumentFile;
 
 import com.kunfei.basemvplib.AppActivityManager;
 import com.kunfei.basemvplib.BitIntentDataManager;
@@ -1933,11 +1932,7 @@ public class ReadBookActivity extends MBaseActivity<ReadBookContract.Presenter> 
             if (data != null) {
                 Uri uri = data.getData();
                 if (uri != null) {
-                    int modeFlags =
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
-                    getContentResolver().takePersistableUriPermission(uri, modeFlags);
-                    DocumentFile doc = DocumentFile.fromTreeUri(this, uri);
-                    binding.readInterfacePop.showFontSelector(doc.getUri());
+                    binding.readInterfacePop.showFontSelector(uri);
                 }
             }
         }
