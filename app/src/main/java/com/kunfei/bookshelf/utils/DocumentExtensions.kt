@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package com.kunfei.bookshelf.utils
 
 import android.content.Context
@@ -9,7 +7,6 @@ import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import com.kunfei.bookshelf.model.NoStackTraceException
 import timber.log.Timber
-import java.io.File
 import java.nio.charset.Charset
 import java.util.*
 
@@ -96,7 +93,7 @@ object DocumentUtils {
         } ?: throw NoStackTraceException("打开文件失败\n${uri}")
     }
 
-    fun listFiles(context: Context, uri: Uri, regex: Regex? = null): ArrayList<DocItem> {
+    fun listFiles(context: Context, uri: Uri): ArrayList<DocItem> {
         val docList = arrayListOf<DocItem>()
         var cursor: Cursor? = null
         try {
@@ -119,18 +116,15 @@ object DocumentUtils {
                 val dci = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)
                 if (cursor.moveToFirst()) {
                     do {
-                        val name = cursor.getString(nci)
-                        if (regex == null || name.matches(regex)) {
-                            val item = DocItem(
-                                name = cursor.getString(nci),
-                                attr = cursor.getString(mci),
-                                size = cursor.getLong(sci),
-                                date = Date(cursor.getLong(dci)),
-                                uri = DocumentsContract
-                                    .buildDocumentUriUsingTree(uri, cursor.getString(ici))
-                            )
-                            docList.add(item)
-                        }
+                        val item = DocItem(
+                            name = cursor.getString(nci),
+                            attr = cursor.getString(mci),
+                            size = cursor.getLong(sci),
+                            date = Date(cursor.getLong(dci)),
+                            uri = DocumentsContract
+                                .buildDocumentUriUsingTree(uri, cursor.getString(ici))
+                        )
+                        docList.add(item)
                     } while (cursor.moveToNext())
                 }
             }
@@ -140,29 +134,6 @@ object DocumentUtils {
             cursor?.close()
         }
         return docList
-    }
-
-    fun listFiles(path: String, regex: Regex? = null): ArrayList<DocItem> {
-        val docItems = arrayListOf<DocItem>()
-        kotlin.runCatching {
-            val file = File(path)
-            file.listFiles { pathName ->
-                regex?.let {
-                    pathName.name.matches(it)
-                } ?: true
-            }?.forEach {
-                docItems.add(
-                    DocItem(
-                        it.name,
-                        it.extension,
-                        it.length(),
-                        Date(it.lastModified()),
-                        Uri.parse(it.absolutePath)
-                    )
-                )
-            }
-        }
-        return docItems
     }
 
 }

@@ -3,7 +3,6 @@ package com.kunfei.bookshelf.widget.font;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,30 +13,20 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kunfei.bookshelf.R;
-import com.kunfei.bookshelf.utils.DocItem;
-import com.kunfei.bookshelf.utils.RealPathUtil;
 
 import java.io.File;
-import java.io.FileDescriptor;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FontAdapter extends RecyclerView.Adapter<FontAdapter.MyViewHolder> {
-    private final List<DocItem> docList = new ArrayList<>();
+    private final List<File> fileList = new ArrayList<>();
     private final FontSelector.OnThisListener thisListener;
     private final Context context;
-    private String selectName;
+    private final String selectPath;
 
     FontAdapter(Context context, String selectPath, FontSelector.OnThisListener thisListener) {
         this.context = context;
-        try {
-            String[] x = URLDecoder.decode(selectPath, "utf-8")
-                    .split(File.separator);
-            this.selectName = x[x.length - 1];
-        } catch (Exception e) {
-            this.selectName = "";
-        }
+        this.selectPath = selectPath;
         this.thisListener = thisListener;
     }
 
@@ -49,35 +38,18 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.MyViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        if (docList.size() > 0) {
-            DocItem docItem = docList.get(position);
-            try {
-                Typeface typeface;
-                if (docItem.isContentPath()) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        FileDescriptor fd = context.getContentResolver().openFileDescriptor(docItem.getUri(), "r")
-                                .getFileDescriptor();
-                        typeface = new Typeface.Builder(fd).build();
-                    } else {
-                        typeface = Typeface.createFromFile(RealPathUtil.getPath(context, docItem.getUri()));
-                    }
-                } else {
-                    typeface = Typeface.createFromFile(docItem.getUri().toString());
-                }
-                holder.tvFont.setTypeface(typeface);
-            } catch (Exception ignored) {
-
-            }
-            holder.tvFont.setText(docItem.getName());
-
-            if (docItem.getName().equals(selectName)) {
+        if (fileList.size() > 0) {
+            Typeface typeface = Typeface.createFromFile(fileList.get(position));
+            holder.tvFont.setTypeface(typeface);
+            holder.tvFont.setText(fileList.get(position).getName());
+            if (fileList.get(position).getAbsolutePath().equals(selectPath)) {
                 holder.ivChecked.setVisibility(View.VISIBLE);
             } else {
                 holder.ivChecked.setVisibility(View.INVISIBLE);
             }
             holder.tvFont.setOnClickListener(view -> {
                 if (thisListener != null) {
-                    thisListener.setFontPath(docItem.getUri());
+                    thisListener.setFontPath(fileList.get(position).getAbsolutePath());
                 }
             });
         } else {
@@ -87,14 +59,21 @@ public class FontAdapter extends RecyclerView.Adapter<FontAdapter.MyViewHolder> 
 
     @Override
     public int getItemCount() {
-        return docList.size() == 0 ? 1 : docList.size();
+        return fileList.size() == 0 ? 1 : fileList.size();
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    void upData(List<DocItem> docItems) {
-        if (docItems != null) {
-            docList.clear();
-            docList.addAll(docItems);
+    void upData(File[] files) {
+        if (files != null) {
+            fileList.clear();
+            for (File file : files) {
+                try {
+                    Typeface.createFromFile(file);
+                    fileList.add(file);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         }
         notifyDataSetChanged();
     }
