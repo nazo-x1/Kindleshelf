@@ -62,6 +62,8 @@ import com.kunfei.bookshelf.service.ReadAloudService;
 import com.kunfei.bookshelf.utils.ActivityExtensionsKt;
 import com.kunfei.bookshelf.utils.BatteryUtil;
 import com.kunfei.bookshelf.utils.ColorUtils;
+import com.kunfei.bookshelf.utils.DocItem;
+import com.kunfei.bookshelf.utils.DocumentUtils;
 import com.kunfei.bookshelf.utils.NetworkUtils;
 import com.kunfei.bookshelf.utils.ScreenUtils;
 import com.kunfei.bookshelf.utils.SoftInputUtil;
@@ -77,6 +79,7 @@ import com.kunfei.bookshelf.view.popupwindow.ReadAdjustPop;
 import com.kunfei.bookshelf.view.popupwindow.ReadBottomMenu;
 import com.kunfei.bookshelf.view.popupwindow.ReadInterfacePop;
 import com.kunfei.bookshelf.view.popupwindow.ReadLongPressPop;
+import com.kunfei.bookshelf.widget.font.FontSelector;
 import com.kunfei.bookshelf.widget.modialog.BookmarkDialog;
 import com.kunfei.bookshelf.widget.modialog.ChangeSourceDialog;
 import com.kunfei.bookshelf.widget.modialog.DownLoadDialog;
@@ -1917,12 +1920,28 @@ public class ReadBookActivity extends MBaseActivity<ReadBookContract.Presenter> 
         try {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            //noinspection deprecation
             startActivityForResult(intent, fontDirRequest);
         } catch (Exception e) {
             e.printStackTrace();
             toast(e.getLocalizedMessage());
         }
+    }
+
+    public void selectFont(List<DocItem> docItems) {
+        new FontSelector(this, readBookControl.getFontPath())
+                .setListener(new FontSelector.OnThisListener() {
+                    @Override
+                    public void setDefault() {
+                        binding.readInterfacePop.clearFontPath();
+                    }
+
+                    @Override
+                    public void setFontPath(Uri uri) {
+                        binding.readInterfacePop.setReadFonts(uri);
+                    }
+                })
+                .create(docItems)
+                .show();
     }
 
     @Override
@@ -1932,7 +1951,7 @@ public class ReadBookActivity extends MBaseActivity<ReadBookContract.Presenter> 
             if (data != null) {
                 Uri uri = data.getData();
                 if (uri != null) {
-                    binding.readInterfacePop.showFontSelector(uri);
+                    selectFont(DocumentUtils.INSTANCE.listFiles(this, uri, FontSelector.fontRegex));
                 }
             }
         }

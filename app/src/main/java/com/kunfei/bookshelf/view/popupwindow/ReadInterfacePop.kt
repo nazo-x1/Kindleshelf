@@ -23,7 +23,6 @@ import com.kunfei.bookshelf.utils.theme.ATH
 import com.kunfei.bookshelf.view.activity.ReadBookActivity
 import com.kunfei.bookshelf.view.activity.ReadStyleActivity
 import com.kunfei.bookshelf.widget.font.FontSelector
-import com.kunfei.bookshelf.widget.font.FontSelector.OnThisListener
 import com.kunfei.bookshelf.widget.page.animation.PageAnimation
 
 class ReadInterfacePop : FrameLayout {
@@ -37,11 +36,11 @@ class ReadInterfacePop : FrameLayout {
     private var callback: Callback? = null
 
     constructor(context: Context) : super(context) {
-        init()
+        init(context)
     }
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        init()
+        init(context)
     }
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
@@ -49,10 +48,10 @@ class ReadInterfacePop : FrameLayout {
         attrs,
         defStyleAttr
     ) {
-        init()
+        init(context)
     }
 
-    private fun init() {
+    private fun init(context: Context) {
         binding.vwBg.setOnClickListener(null)
     }
 
@@ -201,10 +200,8 @@ class ReadInterfacePop : FrameLayout {
                 } else {
                     kotlin.runCatching {
                         val uri = Uri.parse(path)
-                        val docs = DocumentUtils.listFiles(uri) {
-                            it.name.matches(FontSelector.fontRegex)
-                        }
-                        selectFont(docs)
+                        val docs = DocumentUtils.listFiles(context, uri)
+                        activity!!.selectFont(docs)
                     }.onFailure {
                         activity!!.selectFontDir()
                     }
@@ -218,10 +215,11 @@ class ReadInterfacePop : FrameLayout {
                     .rationale(R.string.get_storage_per)
                     .onGranted {
                         kotlin.runCatching {
-                            selectFont(
-                                DocumentUtils.listFiles(FileUtils.getSdCardPath() + "/Fonts") {
-                                    it.name.matches(FontSelector.fontRegex)
-                                }
+                            activity!!.selectFont(
+                                DocumentUtils.listFiles(
+                                    FileUtils.getSdCardPath() + "/Fonts",
+                                    FontSelector.fontRegex
+                                )
                             )
                         }.onFailure {
                             context.toastOnUi("获取文件出错\n${it.localizedMessage}")
@@ -237,31 +235,6 @@ class ReadInterfacePop : FrameLayout {
             activity!!.toast(R.string.clear_font)
             true
         }
-    }
-
-    fun showFontSelector(uri: Uri) {
-        kotlin.runCatching {
-            DocumentUtils.listFiles(uri) {
-                it.name.matches(FontSelector.fontRegex)
-            }.let {
-                selectFont(it)
-            }
-        }
-    }
-
-    private fun selectFont(docItems: List<FileDoc?>?) {
-        FontSelector(context, readBookControl.fontPath)
-            .setListener(object : OnThisListener {
-                override fun setDefault() {
-                    clearFontPath()
-                }
-
-                override fun setFontPath(uri: Uri) {
-                    setReadFonts(uri)
-                }
-            })
-            .create(docItems)
-            .show()
     }
 
     //自定义阅读样式

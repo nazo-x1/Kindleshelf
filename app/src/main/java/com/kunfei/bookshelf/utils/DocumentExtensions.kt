@@ -7,9 +7,9 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
-import com.kunfei.bookshelf.MApplication
 import com.kunfei.bookshelf.model.NoStackTraceException
 import java.io.File
+import java.io.IOException
 import java.nio.charset.Charset
 import java.util.*
 
@@ -97,13 +97,13 @@ object DocumentUtils {
     }
 
     @Throws(Exception::class)
-    fun listFiles(uri: Uri, filter: ((file: FileDoc) -> Boolean)? = null): ArrayList<FileDoc> {
-        val docList = arrayListOf<FileDoc>()
+    fun listFiles(context: Context, uri: Uri, regex: Regex? = null): ArrayList<DocItem> {
+        val docList = arrayListOf<DocItem>()
         var cursor: Cursor? = null
         try {
             val childrenUri = DocumentsContract
                 .buildChildDocumentsUriUsingTree(uri, DocumentsContract.getDocumentId(uri))
-            cursor = MApplication.getInstance().contentResolver.query(
+            cursor = context.contentResolver.query(
                 childrenUri, arrayOf(
                     DocumentsContract.Document.COLUMN_DOCUMENT_ID,
                     DocumentsContract.Document.COLUMN_DISPLAY_NAME,
@@ -120,15 +120,16 @@ object DocumentUtils {
                 val dci = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)
                 if (cursor.moveToFirst()) {
                     do {
-                        val item = FileDoc(
-                            name = cursor.getString(nci),
-                            isDir = cursor.getString(mci) == DocumentsContract.Document.MIME_TYPE_DIR,
-                            size = cursor.getLong(sci),
-                            date = Date(cursor.getLong(dci)),
-                            uri = DocumentsContract
-                                .buildDocumentUriUsingTree(uri, cursor.getString(ici))
-                        )
-                        if (filter == null || filter.invoke(item)) {
+                        val name = cursor.getString(nci)
+                        if (regex == null || name.matches(regex)) {
+                            val item = DocItem(
+                                name = cursor.getString(nci),
+                                attr = cursor.getString(mci),
+                                size = cursor.getLong(sci),
+                                date = Date(cursor.getLong(dci)),
+                                uri = DocumentsContract
+                                    .buildDocumentUriUsingTree(uri, cursor.getString(ici))
+                            )
                             docList.add(item)
                         }
                     } while (cursor.moveToNext())
@@ -140,17 +141,19 @@ object DocumentUtils {
         return docList
     }
 
-    @Throws(Exception::class)
-    fun listFiles(path: String, filter: ((file: File) -> Boolean)? = null): ArrayList<FileDoc> {
-        val docItems = arrayListOf<FileDoc>()
+    @Throws(IOException::class)
+    fun listFiles(path: String, regex: Regex? = null): ArrayList<DocItem> {
+        val docItems = arrayListOf<DocItem>()
         val file = File(path)
         file.listFiles { pathName ->
-            filter?.invoke(pathName) ?: true
+            regex?.let {
+                pathName.name.matches(it)
+            } ?: true
         }?.forEach {
             docItems.add(
-                FileDoc(
+                DocItem(
                     it.name,
-                    it.isDirectory,
+                    it.extension,
                     it.length(),
                     Date(it.lastModified()),
                     Uri.parse(it.absolutePath)
@@ -162,14 +165,18 @@ object DocumentUtils {
 
 }
 
-data class FileDoc(
+data class DocItem(
     val name: String,
-    val isDir: Boolean,
+    val attr: String,
     val size: Long,
     val date: Date,
     val uri: Uri
 ) {
-    val isContentScheme get() = uri.isContentScheme()
+    val isDir: Boolean by lazy {
+        DocumentsContract.Document.MIME_TYPE_DIR == attr
+    }
+
+    val isContentPath get() = uri.isContentScheme()
 }
 
 @Throws(Exception::class)
