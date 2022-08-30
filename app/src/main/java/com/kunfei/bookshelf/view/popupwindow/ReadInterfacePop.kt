@@ -18,6 +18,7 @@ import com.kunfei.bookshelf.databinding.PopReadInterfaceBinding
 import com.kunfei.bookshelf.help.ReadBookControl
 import com.kunfei.bookshelf.help.permission.Permissions
 import com.kunfei.bookshelf.help.permission.PermissionsCompat
+import com.kunfei.bookshelf.help.storage.isContentPath
 import com.kunfei.bookshelf.utils.*
 import com.kunfei.bookshelf.utils.theme.ATH
 import com.kunfei.bookshelf.view.activity.ReadBookActivity
@@ -194,7 +195,19 @@ class ReadInterfacePop : FrameLayout {
         //选择字体
         binding.flTextFont.setOnClickListener {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                activity!!.selectFontDir()
+                val path = ACache.get(activity).getAsString("fontDir")
+                if (path.isNullOrBlank()) {
+                    activity!!.selectFontDir()
+                } else if (!path.isContentPath()) {
+                    activity!!.selectFontDir()
+                } else {
+                    kotlin.runCatching {
+                        val uri = Uri.parse(path)
+                        showFontSelector(uri)
+                    }.onFailure {
+                        activity!!.selectFontDir()
+                    }
+                }
             } else {
                 PermissionsCompat.Builder(activity!!)
                     .addPermissions(
@@ -226,6 +239,7 @@ class ReadInterfacePop : FrameLayout {
     }
 
     fun showFontSelector(uri: Uri) {
+        ACache.get(activity).put("fontDir", uri.toString())
         kotlin.runCatching {
             val doc = DocumentFile.fromTreeUri(context, uri)
             DocumentUtils.listFiles(doc!!.uri) {
